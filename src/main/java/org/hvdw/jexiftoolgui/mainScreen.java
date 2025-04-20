@@ -22,7 +22,6 @@ import javax.swing.*;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
-import javax.swing.ImageIcon;
 import javax.swing.plaf.FontUIResource;
 import javax.swing.text.StyleContext;
 import java.awt.*;
@@ -3011,7 +3010,16 @@ private String getSeparatorString() {
             public void actionPerformed(ActionEvent actionEvent) {
                 selectedIndicesList = MyVariables.getselectedIndicesList();
                 if ( !(selectedIndicesList == null) && (selectedIndicesList.size() > 0) ) {
-                    EEd.writeExifTags(getExifFields(), ExifDescriptiontextArea, getExifBoxes(), progressBar);
+                    EEd.writeExifTags(getExifFields(), ExifDescriptiontextArea, getExifBoxes(), progressBar, new Runnable() {
+
+                        @Override
+                        public void run() {
+                            progressBar.setVisible(true);
+                            Utils.displayFiles(tableListfiles, iconViewList, LeftPanel, LeftGridScrollPanel, true, true, ListexiftoolInfotable, mainScreenLabels(), getLoadOptions());
+                            progressBar.setVisible(false);
+                        }
+                        
+                    });
                 } else {
                     JOptionPane.showMessageDialog(rootPanel, String.format(ProgramTexts.HTML, 200, ResourceBundle.getBundle("translations/program_strings").getString("msd.noimgslong")), ResourceBundle.getBundle("translations/program_strings").getString("msd.noimgs"), JOptionPane.WARNING_MESSAGE);
                 }
@@ -3125,7 +3133,16 @@ private String getSeparatorString() {
             public void actionPerformed(ActionEvent actionEvent) {
                 selectedIndicesList = MyVariables.getselectedIndicesList();
                 if ( !(selectedIndicesList == null) && (selectedIndicesList.size() > 0) ) {
-                    EGPSd.writeGPSTags(getNumGPSdecFields(), getGPSLocationFields(), getGpsBoxes(), getGPSdmsFields(), getGPSdmsradiobuttons(), progressBar, geoformattabbedPane.getSelectedIndex(), rootPanel);
+                    EGPSd.writeGPSTags(getNumGPSdecFields(), getGPSLocationFields(), getGpsBoxes(), getGPSdmsFields(), getGPSdmsradiobuttons(), progressBar, geoformattabbedPane.getSelectedIndex(), rootPanel, new Runnable() {
+
+                        @Override
+                        public void run() {
+                            progressBar.setVisible(true);
+                            Utils.displayFiles(tableListfiles, iconViewList, LeftPanel, LeftGridScrollPanel, true, true, ListexiftoolInfotable, mainScreenLabels(), getLoadOptions());
+                            progressBar.setVisible(false);
+                        }
+                        
+                    });
                 } else {
                     JOptionPane.showMessageDialog(rootPanel, String.format(ProgramTexts.HTML, 200, ResourceBundle.getBundle("translations/program_strings").getString("msd.noimgslong")), ResourceBundle.getBundle("translations/program_strings").getString("msd.noimgs"), JOptionPane.WARNING_MESSAGE);
                 }

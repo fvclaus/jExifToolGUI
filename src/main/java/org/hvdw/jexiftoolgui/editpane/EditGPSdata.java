@@ -187,7 +187,7 @@ public class EditGPSdata {
     }
 
 
-    public void writeGPSTags(JFormattedTextField[] gpsNumdecFields, JTextField[] gpsLocationFields, JCheckBox[] gpsBoxes, JFormattedTextField[] gpsDMSFields, JRadioButton[] gpSdmsradiobuttons, JProgressBar progressBar, int selectedTabIndex, JPanel rootPanel) {
+    public void writeGPSTags(JFormattedTextField[] gpsNumdecFields, JTextField[] gpsLocationFields, JCheckBox[] gpsBoxes, JFormattedTextField[] gpsDMSFields, JRadioButton[] gpSdmsradiobuttons, JProgressBar progressBar, int selectedTabIndex, JPanel rootPanel, Runnable afterSuccess) {
 
         int selectedIndices[] = MyVariables.getSelectedFilenamesIndices();
         File[] files = MyVariables.getLoadedFiles();
@@ -358,7 +358,7 @@ public class EditGPSdata {
         }
         logger.debug("total cmdparams from GPS {}", cmdparams);
         if (valuescorrect) {
-            CommandRunner.runCommandWithProgressBar(cmdparams, progressBar);
+            CommandRunner.runCommandWithProgressBar(cmdparams, progressBar, afterSuccess);
         }
     }
 

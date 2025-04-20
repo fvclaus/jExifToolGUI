@@ -122,7 +122,7 @@ public class EditExifdata {
         return newValue;
     }
 
-    public void writeExifTags(JTextField[] exifFields, JTextArea Description, JCheckBox[] exifBoxes, JProgressBar progressBar) {
+    public void writeExifTags(JTextField[] exifFields, JTextArea Description, JCheckBox[] exifBoxes, JProgressBar progressBar, Runnable afterSuccess) {
 
         List<String> cmdparams = new LinkedList<>();
         File[] files = MyVariables.getLoadedFiles();
@@ -176,7 +176,7 @@ public class EditExifdata {
             }
         }
 
-        CommandRunner.runCommandWithProgressBar(cmdparams, progressBar);
+        CommandRunner.runCommandWithProgressBar(cmdparams, progressBar, afterSuccess);
 
     }
 }

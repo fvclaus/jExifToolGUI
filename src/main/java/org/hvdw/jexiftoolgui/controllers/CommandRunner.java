@@ -13,6 +13,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.Callable;
 import java.util.concurrent.Executor;
 
 public class CommandRunner {
@@ -151,11 +152,22 @@ public class CommandRunner {
         JOptionPane.showMessageDialog(null, scrollPane, "Output from the given command", JOptionPane.INFORMATION_MESSAGE);
     }
 
+    public static void runCommandWithProgressBar(List<String> cmdparams, JProgressBar progressBar) { 
+        runCommandWithProgressBar(cmdparams, progressBar, new Runnable() {
+
+            @Override
+            public void run() {
+                
+            }
+
+        });
+    }
+
     /*
      * This executes the commands via runCommand and shows/hides the progress bar
      * This one is special for the output windows and has 2 parameters
      */
-    public static void runCommandWithProgressBar(List<String> cmdparams, JProgressBar progressBar) {
+    public static void runCommandWithProgressBar(List<String> cmdparams, JProgressBar progressBar, Runnable afterSuccess) {
         // Create executor thread to be able to update my gui when longer methods run
         Executor executor = java.util.concurrent.Executors.newSingleThreadExecutor();
         executor.execute(new Runnable() {
@@ -166,6 +178,11 @@ public class CommandRunner {
                     logger.debug("res is\n{}", res);
                     progressBar.setVisible(false);
                     outputAfterCommand(res);
+                    try {
+                        afterSuccess.run();
+                    } catch (Exception e) {
+                        throw new RuntimeException(e);
+                    }
                 } catch (IOException | InterruptedException ex) {
                     logger.debug("Error executing command");
                 }

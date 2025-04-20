@@ -1053,6 +1053,12 @@ public class Utils {
             }
         });
 
+        // Update the loaded files in MyVariables with the sorted files
+        File[] sortedFiles = filesToSort.stream()
+            .map(Map.Entry::getKey)
+            .toArray(File[]::new);
+        MyVariables.setLoadedFiles(sortedFiles);
+
         logger.debug("Files sorted by DateTimeOriginal, now displaying them");
 
         // Second pass: display the sorted files
