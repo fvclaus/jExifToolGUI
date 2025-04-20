@@ -134,11 +134,12 @@ public class ButtonsActionListener implements ActionListener {
                 break;
             case "udcCNB":
                 logger.debug("button udcCreateNewButton pressed");
-                MD.showDialog(rootPanel);
-                MetadataUserCombinations MUC = new MetadataUserCombinations();
-                String[] views = MUC.loadCustomSets("fill_combo");
-                UserCombiscomboBox.setModel(new DefaultComboBoxModel(views));
-                break;
+                throw new IllegalArgumentException("Feature broken");
+                // MD.showDialog(rootPanel);
+                // MetadataUserCombinations MUC = new MetadataUserCombinations();
+                // String[] views = MUC.loadCustomSets("fill_combo");
+                // UserCombiscomboBox.setModel(new DefaultComboBoxModel(views));
+                // break;
             case "udcHb":
                 logger.debug("button udcHelpbutton pressed");
                 //Utils.openBrowser(ProgramTexts.ProjectWebSite + "/manual/jexiftoolgui_usercombis.html");

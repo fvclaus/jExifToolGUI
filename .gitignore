@@ -9,3 +9,6 @@ build
 *.iml
 
 *.log
+.vscode/
+org.eclipse.jdt.core.prefs
+.classpath

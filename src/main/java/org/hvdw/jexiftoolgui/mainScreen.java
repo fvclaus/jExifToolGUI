@@ -625,44 +625,44 @@ private String getSeparatorString() {
     private void fillAllComboboxes() {
         //Combobox on User combi edit tab; do as first as we need it again
         MetadataUserCombinations MUC = new MetadataUserCombinations();
-        String[] views = MUC.loadCustomSets("fill_combo");
+        // String[] views = MUC.loadCustomSets("fill_combo");
         // use setter to be later use it for common tags in Utils.getWhichCommonTagSelected
-        MyVariables.setCustomCombis(views);
-        UserCombiscomboBox.setModel(new DefaultComboBoxModel(views));
-        exportUserCombicomboBox.setModel(new DefaultComboBoxModel(views));
+        // MyVariables.setCustomCombis(views);
+        // UserCombiscomboBox.setModel(new DefaultComboBoxModel(views));
+        // exportUserCombicomboBox.setModel(new DefaultComboBoxModel(views));
         exportUserCombicomboBox.setEnabled(false);
 
 
 
         // Fill all combo boxes in the View panel
-        String TagNames = StandardFileIO.readTextFileAsStringFromResource("texts/CommonTags.txt");
-        String[] Tags = TagNames.split("\\r?\\n"); // split on new lines
+        // String TagNames = StandardFileIO.readTextFileAsStringFromResource("texts/CommonTags.txt");
+        // String[] Tags = TagNames.split("\\r?\\n"); // split on new lines
         // Now combine Tags[] and above views[] into one array
-        int length1 = Tags.length;
-        int length2 = views.length;
-        String[] allTags = new String[length1 + length2];
+        // int length1 = Tags.length;
+        // int length2 = views.length;
+        // String[] allTags = new String[length1 + length2];
         //Using arraycopy method to merge two arrays
-        System.arraycopy(Tags, 0, allTags, 0, length1);
-        System.arraycopy(views, 0, allTags, length1, length2);
-        Arrays.sort(allTags);
-        comboBoxViewCommonTags.setModel(new DefaultComboBoxModel(allTags));
-        pdfcomboBoxExpCommonTags.setModel(new DefaultComboBoxModel(allTags));
+        // System.arraycopy(Tags, 0, allTags, 0, length1);
+        // System.arraycopy(views, 0, allTags, length1, length2);
+        // Arrays.sort(allTags);
+        // comboBoxViewCommonTags.setModel(new DefaultComboBoxModel(allTags));
+        // pdfcomboBoxExpCommonTags.setModel(new DefaultComboBoxModel(allTags));
 
-        String TagGroups = StandardFileIO.readTextFileAsStringFromResource("texts/g1.txt");
-        Tags = TagGroups.split("\\r?\\n"); // split on new lines
-        comboBoxViewByTagName.setModel(new DefaultComboBoxModel(Tags));
-        //comboBoxQueryByTagName.setModel(new DefaultComboBoxModel(Tags));
-        pdfcomboBoxExpByTagName.setModel(new DefaultComboBoxModel(Tags));
+        // String TagGroups = StandardFileIO.readTextFileAsStringFromResource("texts/g1.txt");
+        // Tags = TagGroups.split("\\r?\\n"); // split on new lines
+        // comboBoxViewByTagName.setModel(new DefaultComboBoxModel(Tags));
+        // //comboBoxQueryByTagName.setModel(new DefaultComboBoxModel(Tags));
+        // pdfcomboBoxExpByTagName.setModel(new DefaultComboBoxModel(Tags));
 
 
-        TagNames = StandardFileIO.readTextFileAsStringFromResource("texts/CameraTagNames.txt");
-        Tags = TagNames.split("\\r?\\n"); // split on new lines
-        comboBoxViewCameraMake.setModel(new DefaultComboBoxModel(Tags));
+        // TagNames = StandardFileIO.readTextFileAsStringFromResource("texts/CameraTagNames.txt");
+        // Tags = TagNames.split("\\r?\\n"); // split on new lines
+        // comboBoxViewCameraMake.setModel(new DefaultComboBoxModel(Tags));
 
         // fill combobox in Lens panel
-        TagNames = StandardFileIO.readTextFileAsStringFromResource("texts/lensmeteringmodes.txt");
-        Tags = TagNames.split("\\r?\\n"); // split on new lines
-        meteringmodecomboBox.setModel(new DefaultComboBoxModel(Tags));
+        // TagNames = StandardFileIO.readTextFileAsStringFromResource("texts/lensmeteringmodes.txt");
+        // Tags = TagNames.split("\\r?\\n"); // split on new lines
+        // meteringmodecomboBox.setModel(new DefaultComboBoxModel(Tags));
 
         //Combobox on Gpano edit tab
         for (String item : MyConstants.GPANO_PROJECTIONS) {
@@ -809,9 +809,9 @@ private String getSeparatorString() {
         LeftCheckboxBar.add(createPreviewsCheckBox);
         loadMetadataCheckBox = new JCheckBox();
         loadMetadataCheckBox.setEnabled(true);
-        loadMetadataCheckBox.setSelected(false);
+        loadMetadataCheckBox.setSelected(true);
         this.$$$loadButtonText$$$(loadMetadataCheckBox, this.$$$getMessageFromBundle$$$("translations/program_strings", "lp.loadmetadata"));
-        loadMetadataCheckBox.setVisible(false);
+        loadMetadataCheckBox.setVisible(true);
         LeftCheckboxBar.add(loadMetadataCheckBox);
         leftCheckBoxBarHelpButton = new JButton();
         leftCheckBoxBarHelpButton.setIcon(new ImageIcon(getClass().getResource("/icons/outline_info_black_24dp.png")));

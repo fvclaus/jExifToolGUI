@@ -173,11 +173,12 @@ public class MenuActionListener implements ActionListener  {
                 }
                 break;
             case "UserMetadata":
-                MD.showDialog(rootPanel);
-                MetadataUserCombinations MUC = new MetadataUserCombinations();
-                String[] views = MUC.loadCustomSets("fill_combo");
-                UserCombiscomboBox.setModel(new DefaultComboBoxModel(views));
-                break;
+                throw new IllegalArgumentException();
+                // MD.showDialog(rootPanel);
+                // MetadataUserCombinations MUC = new MetadataUserCombinations();
+                // String[] views = MUC.loadCustomSets("fill_combo");
+                // UserCombiscomboBox.setModel(new DefaultComboBoxModel(views));
+                // break;
             case "DeleteFavorites":
                 Favorites Favs = new Favorites();
                 Favs.showDialog(rootPanel, "DeleteFavorite", "Exiftool_Command", "");

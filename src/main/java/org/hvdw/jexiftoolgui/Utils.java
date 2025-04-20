@@ -21,7 +21,6 @@ import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.*;
 import java.awt.*;
-import java.awt.Font;
 import java.awt.image.BufferedImage;
 import java.io.*;
 import java.net.URI;
@@ -925,6 +924,39 @@ public class Utils {
         return files;
     }
 
+    public static String getDisplayLabel(String filename, HashMap<String, String> imgBasicData) {
+    String displayText = "Datum fehlt";
+
+        if (imgBasicData != null && imgBasicData.containsKey("DateTimeOriginal")) {
+            String dateTimeOriginal = imgBasicData.get("DateTimeOriginal");
+            if (dateTimeOriginal != null && !dateTimeOriginal.isEmpty()) {
+                // DateTimeOriginal format is typically: YYYY:MM:DD HH:MM:SS
+                // Split by space to separate date from time
+                String[] dateTimeParts = dateTimeOriginal.split(" ");
+                if (dateTimeParts.length > 0) {
+                    String datePart = dateTimeParts[0]; // Get only the date part
+                    // Split the date by colon
+                    String[] datePieces = datePart.split(":");
+                    if (datePieces.length == 3) {
+                        // Reorder from YYYY:MM:DD to DD.MM.YYYY
+                    displayText = datePieces[2] + "." + datePieces[1] + "." + datePieces[0];
+                    } else {
+                    displayText = "Ungültiges Datumsformat"; // Invalid date format
+                    }
+                } else {
+                displayText = "Ungültiges Datumsformat"; // Invalid date format
+                }
+            } else {
+            displayText = "Datum fehlt"; // Date missing
+            }
+        } else {
+        displayText = "Datum fehlt"; // Date missing
+        }
+
+    // Wrap the display text in HTML tags
+    return "<html>" + displayText + "</html>";
+    }
+
 
     /*
      * Display the loaded files with icon and name
@@ -979,36 +1011,90 @@ public class Utils {
         String filename = "";
 
         Application.OS_NAMES currentOsName = getCurrentOsName();
+        // Create a list to hold files with their DateTimeOriginal values for sorting
+        List<Map.Entry<File, Date>> filesToSort = new ArrayList<>();
+
+        // First pass: extract DateTimeOriginal from each file's metadata
         for (File file : files) {
             filename = file.getName().replace("\\", "/");
-            logger.debug("Now working on image: " + filename);
+            logger.debug("Now extracting metadata for: " + filename);
 
-            if (loadMetadata) {
-                ImageFunctions.getImageMetaData(file);
-            }
-
-            if (showCreatePreviews) { //User wants a preview
-                icon = ImageFunctions.useCachedOrCreateIcon(file);
-            }
-
-            //logger.info("Before display: Singlecolumntable {} ShowCreatePreview {} loadMetadata {}", singleColumnTable, showCreatePreview, loadMetadata);
-            if (showCreatePreviews) {
-                iconViewListModel.add(count++, new LabelIcon(icon, "<html>" + filename + "</html>"));
-                if (loadMetadata) {
-                    String imginfo = returnBasicImageDataString(filename, "html");
+            // Get metadata for sorting
+            ImageFunctions.getImageMetaData(file);
+            HashMap<String, String> imgBasicData = MyVariables.getimagesData().get(filename);
+            
+            // Parse DateTimeOriginal into a Date object for sorting
+            Date dateTimeOriginal = null;
+            if (imgBasicData != null && imgBasicData.containsKey("DateTimeOriginal")) {
+                String dateStr = imgBasicData.get("DateTimeOriginal");
+                if (dateStr != null && !dateStr.isEmpty()) {
+                    try {
+                        // DateTimeOriginal format is typically: YYYY:MM:DD HH:MM:SS
+                        java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("yyyy:MM:dd HH:mm:ss");
+                        dateTimeOriginal = sdf.parse(dateStr);
+                    } catch (ParseException e) {
+                        logger.error("Error parsing DateTimeOriginal for " + filename, e);
+                    }
                 }
-            } else {
-                if (loadMetadata) {
-                    String imginfo = returnBasicImageDataString(filename, "html");
-                    logger.debug("imginfo {}", imginfo);
-                    //ImgFilenameRow[1] = imginfo;
-                    ImgFilenameRow[0] = new LabelIcon(null, imginfo);
-                } else {
-                    ImgFilenameRow[0] = new LabelIcon(null, "<html>" + filename + "</html>");
-                }
-                tableModel.addRow(ImgFilenameRow);
             }
 
+            // Add to our collection for sorting (using current time for files without date)
+            filesToSort.add(new AbstractMap.SimpleEntry<>(
+                file,
+                dateTimeOriginal != null ? dateTimeOriginal : new Date()
+            ));
+        }
+
+        // Sort files by DateTimeOriginal
+        Collections.sort(filesToSort, new Comparator<Map.Entry<File, Date>>() {
+            @Override
+            public int compare(Map.Entry<File, Date> o1, Map.Entry<File, Date> o2) {
+                return o1.getValue().compareTo(o2.getValue());
+            }
+        });
+
+        logger.debug("Files sorted by DateTimeOriginal, now displaying them");
+
+        // Second pass: display the sorted files
+        for (Map.Entry<File, Date> entry : filesToSort) {
+            File file = entry.getKey();
+            filename = file.getName().replace("\\", "/");
+            logger.debug("Now displaying image: " + filename);
+
+            // Get icon
+            icon = ImageFunctions.useCachedOrCreateIcon(file);
+
+            // Get image data map with metadata
+            HashMap<String, String> imgBasicData = MyVariables.getimagesData().get(filename);
+
+            // Get display label - DateTimeOriginal formatted as DD.MM.YYYY
+            String displayLabel = getDisplayLabel(filename, imgBasicData);
+
+            // Check if GPS data is missing
+            if (imgBasicData == null || !imgBasicData.containsKey("GPSLatitude") ||
+                imgBasicData.get("GPSLatitude") == null || imgBasicData.get("GPSLatitude").isEmpty()) {
+                
+                // Create warning icon overlay
+                ImageIcon warningIcon = new ImageIcon(Utils.class.getResource("/icons/warning.png"));
+                Image warningImg = warningIcon.getImage();
+                
+                // Create composite image
+                BufferedImage combined = new BufferedImage(
+                    icon.getIconWidth(), 
+                    icon.getIconHeight(), 
+                    BufferedImage.TYPE_INT_ARGB
+                );
+                Graphics2D g = combined.createGraphics();
+                g.drawImage(icon.getImage(), 0, 0, null);
+                g.drawImage(warningImg, 
+                    icon.getIconWidth() - warningImg.getWidth(null) - 5, 
+                    5, null);
+                g.dispose();
+                
+                icon = new ImageIcon(combined);
+            }
+
+            iconViewListModel.add(count++, new LabelIcon(icon, displayLabel));
         }
 
         if (showCreatePreviews) {
@@ -1847,3 +1933,4 @@ public class Utils {
         return Utils.class.getClassLoader().getResource(path);
     }
 }
+
