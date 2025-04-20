@@ -142,7 +142,7 @@ public class MyVariables {
     public static void setSinglePreviewFileName( String spfn) { staticInstance.SinglePreviewFileName = spfn; }
 
     public static int[] getSelectedFilenamesIndices() {
-        return Arrays.copyOf(staticInstance.selectedFilenamesIndices, staticInstance.selectedFilenamesIndices.length);
+        return staticInstance.selectedFilenamesIndices != null? Arrays.copyOf(staticInstance.selectedFilenamesIndices, staticInstance.selectedFilenamesIndices.length) : null;
     }
     public static void setSelectedFilenamesIndices(int[] selectedTableIndices) {
         staticInstance.selectedFilenamesIndices = Arrays.copyOf(selectedTableIndices,selectedTableIndices.length);

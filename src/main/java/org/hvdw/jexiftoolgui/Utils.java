@@ -965,6 +965,8 @@ public class Utils {
     //static void displayFiles(JTable jTable_File_Names, JList iconGridView, JPanel LeftPanel, JScrollPane LeftGridScrollPanel, boolean showCreatePreviews, boolean loadMetadata) {
         int selectedRow, selectedColumn;
 
+        long now = System.currentTimeMillis();
+
         ImageIcon icon = null;
         File[] files = MyVariables.getLoadedFiles();
         boolean gridView = false;
@@ -1017,10 +1019,27 @@ public class Utils {
         List<Future<Map.Entry<File, Date>>> futures = new ArrayList<>();
 
         for (File file : files) {
+            int[] selectedIndices = MyVariables.getSelectedFilenamesIndices();
+
             futures.add(executor.submit(() -> {
                 String filename1 = file.getName().replace("\\", "/");
                 logger.debug("Now extracting metadata for: " + filename1);
-                ImageFunctions.getImageMetaData(file);
+                boolean skipFile = false;
+
+                if (selectedIndices != null) {
+                    if (MyVariables.getimagesData().get(file.getName()) != null) {
+                        for (int index: selectedIndices) {
+                            if (files[index] != file) {
+                                skipFile = true;
+                                
+                            }
+                        }
+                    }
+                }
+                if (!skipFile) {
+                    System.out.println("Loading image data for " + file.getName());
+                    ImageFunctions.getImageMetaData(file);
+                }
                 Map<String, String> imgBasicData = MyVariables.getimagesData().get(filename1);
                 Date dateTimeOriginal = null;
                 if (imgBasicData != null && imgBasicData.containsKey("DateTimeOriginal")) {
@@ -1076,6 +1095,21 @@ public class Utils {
             // Get icon
             icon = ImageFunctions.useCachedOrCreateIcon(file);
 
+            // --- Scale icon to fit cell, leaving space for label ---
+            int maxCellHeight = 180;
+            int labelHeight = 30; // Reserve space for label
+            int maxIconHeight = maxCellHeight - labelHeight;
+            int maxIconWidth = 170; // or whatever your cell width is
+
+            if (icon != null && (icon.getIconHeight() > maxIconHeight || icon.getIconWidth() > maxIconWidth)) {
+                Image scaledImg = icon.getImage().getScaledInstance(
+                    Math.min(icon.getIconWidth(), maxIconWidth),
+                    Math.min(icon.getIconHeight(), maxIconHeight),
+                    Image.SCALE_SMOOTH
+                );
+                icon = new ImageIcon(scaledImg);
+            }
+
             // Get image data map with metadata
             Map<String, String> imgBasicData = MyVariables.getimagesData().get(filename);
 
@@ -1125,6 +1159,8 @@ public class Utils {
             MyVariables.setSelectedRowOrIndex(0);
             MyVariables.setSelectedColumn(0);
         }
+
+        System.out.println((System.currentTimeMillis() - now) / 1000f);
     }
 
 

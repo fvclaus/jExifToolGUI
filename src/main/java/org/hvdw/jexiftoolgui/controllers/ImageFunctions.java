@@ -83,11 +83,11 @@ public class ImageFunctions {
                 //}
                 counter++;
             }
-            MyVariables.setimgBasicData(imgBasicData);
+            // MyVariables.setimgBasicData(imgBasicData);
             logger.trace("imgBasicData {}", imgBasicData);
             Map<String, Map<String, String>> imagesData = MyVariables.getimagesData();
             imagesData.put(filename, imgBasicData);
-            MyVariables.setimagesData(imagesData);
+            // MyVariables.setimagesData(imagesData);
             // Note: 100 images will create 300~600 Kb in the total imagesData hashmap.
         }
 
