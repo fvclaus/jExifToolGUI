@@ -15,16 +15,16 @@ import static org.slf4j.LoggerFactory.getLogger;
 public class SearchMetaData {
     private final static ch.qos.logback.classic.Logger logger = (ch.qos.logback.classic.Logger) getLogger(SearchMetaData.class);
 
-    HashMap<String, HashMap<String, String>> imagesData = MyVariables.getimagesData();
+    Map<String, Map<String, String>> imagesData = MyVariables.getimagesData();
 
     public static List<String> searchMetaData(JPanel rootPanel, String searchPhrase) {
         List<String> result = new ArrayList<>();
-        HashMap <String, HashMap<String, String> > imagesData = MyVariables.getimagesData();
+        Map <String, Map<String, String> > imagesData = MyVariables.getimagesData();
         //logger.info("in searchmetada \n\n{}", imagesData.toString());
 
-        for (Map.Entry<String, HashMap<String, String>> outerEntry: imagesData.entrySet()) {
+        for (Map.Entry<String, Map<String, String>> outerEntry: imagesData.entrySet()) {
             String imageName = outerEntry.getKey();
-            HashMap<String, String> singleImageMetaData = outerEntry.getValue();
+            Map<String, String> singleImageMetaData = outerEntry.getValue();
 
             //now loop through the single image hashmap with the tag & value
             Set<Map.Entry<String, String>> entrySet = singleImageMetaData.entrySet();

@@ -41,7 +41,7 @@ public class ImageFunctions {
         int[] basicdata = {0, 0, 999, 0, 0, 0, 0, 0};
         long tmpvalue;
         String tmpValue;
-        HashMap<String, String> imgBasicData = new HashMap<String, String>();
+        Map<String, String> imgBasicData = Collections.synchronizedMap(new HashMap<String, String>());
         //Directory metadata = null;
         String filename = file.getName().replace("\\", "/");
 
@@ -85,7 +85,7 @@ public class ImageFunctions {
             }
             MyVariables.setimgBasicData(imgBasicData);
             logger.trace("imgBasicData {}", imgBasicData);
-            HashMap<String, HashMap<String, String> > imagesData = MyVariables.getimagesData();
+            Map<String, Map<String, String>> imagesData = MyVariables.getimagesData();
             imagesData.put(filename, imgBasicData);
             MyVariables.setimagesData(imagesData);
             // Note: 100 images will create 300~600 Kb in the total imagesData hashmap.
@@ -235,9 +235,9 @@ public class ImageFunctions {
                     String[] lines = imgTags.split(SystemPropertyFacade.getPropertyByKey(LINE_SEPARATOR));
                     boolean initialized = true;
 
-                    HashMap<String, String> imgBasicData = new HashMap<String, String>();
+                    Map<String, String> imgBasicData = new HashMap<String, String>();
                     MyVariables.setimgBasicData(imgBasicData);
-                    HashMap<String, HashMap<String, String>> imagesData = new HashMap<String, HashMap<String, String>>();
+                    Map<String, Map<String, String>> imagesData = Collections.synchronizedMap(new HashMap<String, Map<String, String>>());
                     MyVariables.setimagesData(imagesData);
                     for (String line : lines) {
                         if (line.startsWith("======== ")) {

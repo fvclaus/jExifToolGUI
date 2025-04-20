@@ -40,7 +40,7 @@ public class MyVariables {
     private List<Integer> selectedIndicesList;
     private String[] CustomCombis;
     private String delayedOutput;
-    private HashMap<String, String> imgBasicData;
+    private Map<String, String> imgBasicData = Collections.synchronizedMap(new HashMap<>());
     private String pdfDocs;
     private String[] commandLineArgs;
     private boolean commandLineArgsgiven = false;
@@ -52,7 +52,7 @@ public class MyVariables {
     private ArrayList<String> category_tag;
     private String Latitude;
     private String Longitude;
-    private HashMap <String, HashMap<String, String> > imagesData;
+    private Map<String, Map<String, String>> imagesData = Collections.synchronizedMap(new HashMap<>());
     private String SearchPhrase;
     private boolean reloadImagesFromSearchResult = false;
     private boolean createPreviewsCheckBox = true;
@@ -180,8 +180,8 @@ public class MyVariables {
         staticInstance.delayedOutput = deloutput;
     }
 
-    public static HashMap<String, String> getimgBasicData () { return staticInstance.imgBasicData; };
-    public static void setimgBasicData( HashMap<String, String> imgBasData) {staticInstance.imgBasicData = imgBasData; }
+    public static Map<String, String> getimgBasicData () { return staticInstance.imgBasicData; };
+    public static void setimgBasicData( Map<String, String> imgBasData) {staticInstance.imgBasicData = imgBasData; }
 
     public static String getpdfDocs() { return staticInstance.pdfDocs; }
     public static void setpdfDocs(String pdfDcs) { staticInstance.pdfDocs = pdfDcs; }
@@ -210,8 +210,8 @@ public class MyVariables {
     public static String getLongitude() { return staticInstance.Longitude; }
     public static void setLongitude(String lng) { staticInstance.Longitude = lng; }
 
-    public static HashMap<String, HashMap<String, String>> getimagesData() { return staticInstance.imagesData; }
-    public static void setimagesData(HashMap<String, HashMap<String, String>> imgsData) {staticInstance.imagesData = imgsData; }
+    public static Map<String, Map<String, String>> getimagesData() { return staticInstance.imagesData; }
+    public static void setimagesData(Map<String, Map<String, String>> imgsData) {staticInstance.imagesData = imgsData; }
 
     public static String getSearchPhrase() { return staticInstance.SearchPhrase; }
     public static void setSearchPhrase(String srchphrs) { staticInstance.SearchPhrase = srchphrs; }

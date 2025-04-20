@@ -30,8 +30,7 @@ import java.text.NumberFormat;
 import java.text.ParseException;
 import java.util.*;
 import java.util.List;
-import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
+import java.util.concurrent.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -45,6 +44,7 @@ public class Utils {
 
     private final static IPreferencesFacade prefs = IPreferencesFacade.defaultInstance;
     private final static ch.qos.logback.classic.Logger logger = (ch.qos.logback.classic.Logger) getLogger(Utils.class);
+    private static ExecutorService executor = Executors.newFixedThreadPool(3);
 
     private Utils() {
         SetLoggingLevel(Utils.class);
@@ -577,7 +577,7 @@ public class Utils {
         String strImgData = "";
         Double calcFLin35mmFormat = 0.0;
         // hashmap basicImgData: ImageWidth, ImageHeight, Orientation, ISO, FNumber, ExposureTime, focallength, focallengthin35mmformat
-        HashMap<String, String> imgBasicData = MyVariables.getimgBasicData();
+        Map<String, String> imgBasicData = MyVariables.getimgBasicData();
         StringBuilder imginfo = new StringBuilder();
         NumberFormat df = DecimalFormat.getInstance(Locale.US);
         df.setMaximumFractionDigits(1);
@@ -826,7 +826,7 @@ public class Utils {
 
 
             // Initialize our data Hashmap
-            HashMap <String, HashMap<String, String> > imagesData = new HashMap<String, HashMap<String, String>>();
+            Map<String, Map<String, String>> imagesData = Collections.synchronizedMap(new HashMap<String, Map<String, String>>());
             MyVariables.setimagesData(imagesData);
 
             lblLoadedFiles.setText(String.valueOf(files.length));
@@ -924,7 +924,7 @@ public class Utils {
         return files;
     }
 
-    public static String getDisplayLabel(String filename, HashMap<String, String> imgBasicData) {
+    public static String getDisplayLabel(String filename, Map<String, String> imgBasicData) {
     String displayText = "Datum fehlt";
 
         if (imgBasicData != null && imgBasicData.containsKey("DateTimeOriginal")) {
@@ -1014,35 +1014,41 @@ public class Utils {
         // Create a list to hold files with their DateTimeOriginal values for sorting
         List<Map.Entry<File, Date>> filesToSort = new ArrayList<>();
 
-        // First pass: extract DateTimeOriginal from each file's metadata
-        for (File file : files) {
-            filename = file.getName().replace("\\", "/");
-            logger.debug("Now extracting metadata for: " + filename);
+        List<Future<Map.Entry<File, Date>>> futures = new ArrayList<>();
 
-            // Get metadata for sorting
-            ImageFunctions.getImageMetaData(file);
-            HashMap<String, String> imgBasicData = MyVariables.getimagesData().get(filename);
-            
-            // Parse DateTimeOriginal into a Date object for sorting
-            Date dateTimeOriginal = null;
-            if (imgBasicData != null && imgBasicData.containsKey("DateTimeOriginal")) {
-                String dateStr = imgBasicData.get("DateTimeOriginal");
-                if (dateStr != null && !dateStr.isEmpty()) {
-                    try {
-                        // DateTimeOriginal format is typically: YYYY:MM:DD HH:MM:SS
-                        java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("yyyy:MM:dd HH:mm:ss");
-                        dateTimeOriginal = sdf.parse(dateStr);
-                    } catch (ParseException e) {
-                        logger.error("Error parsing DateTimeOriginal for " + filename, e);
+        for (File file : files) {
+            futures.add(executor.submit(() -> {
+                String filename1 = file.getName().replace("\\", "/");
+                logger.debug("Now extracting metadata for: " + filename1);
+                ImageFunctions.getImageMetaData(file);
+                Map<String, String> imgBasicData = MyVariables.getimagesData().get(filename1);
+                Date dateTimeOriginal = null;
+                if (imgBasicData != null && imgBasicData.containsKey("DateTimeOriginal")) {
+                    String dateStr = imgBasicData.get("DateTimeOriginal");
+                    if (dateStr != null && !dateStr.isEmpty()) {
+                        try {
+                            java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("yyyy:MM:dd HH:mm:ss");
+                            dateTimeOriginal = sdf.parse(dateStr);
+                        } catch (ParseException e) {
+                            logger.error("Error parsing DateTimeOriginal for " + filename1, e);
+                        }
                     }
                 }
-            }
+                return new AbstractMap.SimpleEntry<>(
+                    file,
+                    dateTimeOriginal != null ? dateTimeOriginal : new Date()
+                );
+            }));
+        }
 
-            // Add to our collection for sorting (using current time for files without date)
-            filesToSort.add(new AbstractMap.SimpleEntry<>(
-                file,
-                dateTimeOriginal != null ? dateTimeOriginal : new Date()
-            ));
+        // Collect results
+        filesToSort.clear();
+        for (Future<Map.Entry<File, Date>> future : futures) {
+            try {
+                filesToSort.add(future.get());
+            } catch (Exception e) {
+                throw new RuntimeException("Error getting future result", e);
+            }
         }
 
         // Sort files by DateTimeOriginal
@@ -1071,7 +1077,7 @@ public class Utils {
             icon = ImageFunctions.useCachedOrCreateIcon(file);
 
             // Get image data map with metadata
-            HashMap<String, String> imgBasicData = MyVariables.getimagesData().get(filename);
+            Map<String, String> imgBasicData = MyVariables.getimagesData().get(filename);
 
             // Get display label - DateTimeOriginal formatted as DD.MM.YYYY
             String displayLabel = getDisplayLabel(filename, imgBasicData);
